@@ -19,7 +19,7 @@ class ItemsService {
             sold_quantity: item.sold_quantity,
           };
         });
-        return { resItems };
+        return { ...resItems };
       });
     });
   }

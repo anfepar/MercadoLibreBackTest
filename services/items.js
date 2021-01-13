@@ -39,7 +39,6 @@ class ItemsService {
                 currency,
                 item,
               ] = requestRes;
-              console.log(currency);
               return {
                 id: item.id,
                 title: item.title,

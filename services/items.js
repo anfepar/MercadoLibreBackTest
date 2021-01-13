@@ -3,10 +3,11 @@ const fetch = require("node-fetch");
 const { config } = require("../config");
 const CategoriesService = require("./categories");
 const SellersService = require("./sellers");
+const CurrenciesService = require("./currencies");
 
 const sellersService = new SellersService();
 const categoriesService = new CategoriesService();
-
+const currenciesService = new CurrenciesService();
 class ItemsService {
   async getItemsByQuery(query) {
     return fetch(`${config.api_url}/sites/MLA/search?q=${query}`).then(
@@ -18,16 +19,27 @@ class ItemsService {
             const categoryReq = categoriesService.getCategoryById(
               item.category_id
             );
+            const currencyReq = currenciesService.getCurrencyById(
+              item.currency_id
+            );
             return Promise.all([
               itemDescriptionReq,
               sellerReq,
               categoryReq,
+              currencyReq,
               item,
             ]);
           });
           return Promise.all(populateRequests).then((requestsRes) => {
             return requestsRes.map((requestRes) => {
-              const [itemDescription, seller, category, item] = requestRes;
+              const [
+                itemDescription,
+                seller,
+                category,
+                currency,
+                item,
+              ] = requestRes;
+              console.log(currency);
               return {
                 id: item.id,
                 title: item.title,
@@ -36,6 +48,7 @@ class ItemsService {
                 price: {
                   currency: item.currency_id,
                   amount: item.price,
+                  decimals: currency.decimal_places,
                 },
                 picture: item.thumbnail,
                 condition: item.condition,
@@ -57,9 +70,10 @@ class ItemsService {
       return res.json().then((item) => {
         const itemDescriptionReq = this.getItemDescription(id);
         const sellerReq = sellersService.getSellerById(item.seller_id);
-        return Promise.all([itemDescriptionReq, sellerReq]).then(
+        const currencyReq = currenciesService.getCurrencyById(item.currency_id);
+        return Promise.all([itemDescriptionReq, sellerReq, currencyReq]).then(
           (requestRes) => {
-            const [itemDescription, seller] = requestRes;
+            const [itemDescription, seller, currency] = requestRes;
             return {
               id,
               title: item.title,
@@ -67,6 +81,7 @@ class ItemsService {
               price: {
                 currency: item.currency_id,
                 amount: item.price,
+                decimals: currency.decimal_places,
               },
               picture: item.pictures ? item.pictures[0].secure_url : "",
               condition: item.condition,

@@ -1,9 +1,12 @@
 const { request } = require("express");
 const fetch = require("node-fetch");
 const { config } = require("../config");
+const CategoriesService = require("./categories");
 const SellersService = require("./sellers");
 
 const sellersService = new SellersService();
+const categoriesService = new CategoriesService();
+
 class ItemsService {
   async getItemsByQuery(query) {
     return fetch(`${config.api_url}/sites/MLA/search?q=${query}`).then(
@@ -12,15 +15,24 @@ class ItemsService {
           const populateRequests = jsonRes.results.map((item) => {
             const itemDescriptionReq = this.getItemDescription(item.id);
             const sellerReq = sellersService.getSellerById(item.seller.id);
-            return Promise.all([itemDescriptionReq, sellerReq, item]);
+            const categoryReq = categoriesService.getCategoryById(
+              item.category_id
+            );
+            return Promise.all([
+              itemDescriptionReq,
+              sellerReq,
+              categoryReq,
+              item,
+            ]);
           });
           return Promise.all(populateRequests).then((requestsRes) => {
             return requestsRes.map((requestRes) => {
-              const [itemDescription, seller, item] = requestRes;
+              const [itemDescription, seller, category, item] = requestRes;
               return {
                 id: item.id,
                 title: item.title,
                 author: seller.nickname,
+                category: category.name,
                 price: {
                   currency: item.currency_id,
                   amount: item.price,

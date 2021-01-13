@@ -36,7 +36,7 @@ class ItemsService {
               currency: item.currency_id,
               amount: item.price,
             },
-            picture: item.secure_thumbnail,
+            picture: item.pictures ? item.pictures[0].secure_url : "",
             condition: item.condition,
             free_shipping: item.shipping.free_shipping,
             sold_quantity: item.sold_quantity,

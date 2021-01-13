@@ -17,9 +17,10 @@ class ItemsService {
             condition: item.condition,
             free_shipping: item.shipping.free_shipping,
             sold_quantity: item.sold_quantity,
+            location: item.address.city_name,
           };
         });
-        return { ...resItems };
+        return resItems;
       });
     });
   }

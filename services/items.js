@@ -70,9 +70,10 @@ class ItemsService {
       return res.json().then((item) => {
         const itemDescriptionReq = this.getItemDescription(id);
         const sellerReq = sellersService.getSellerById(item.seller_id);
-        return Promise.all([itemDescriptionReq, sellerReq]).then(
+        const currencyReq = currenciesService.getCurrencyById(item.currency_id);
+        return Promise.all([itemDescriptionReq, sellerReq, currencyReq]).then(
           (requestRes) => {
-            const [itemDescription, seller] = requestRes;
+            const [itemDescription, seller, currency] = requestRes;
             return {
               id,
               title: item.title,
@@ -80,6 +81,7 @@ class ItemsService {
               price: {
                 currency: item.currency_id,
                 amount: item.price,
+                decimals: currency.decimal_places,
               },
               picture: item.pictures ? item.pictures[0].secure_url : "",
               condition: item.condition,

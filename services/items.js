@@ -17,9 +17,40 @@ class ItemsService {
             condition: item.condition,
             free_shipping: item.shipping.free_shipping,
             sold_quantity: item.sold_quantity,
+            location: item.address.city_name,
           };
         });
-        return { resItems };
+        return resItems;
+      });
+    });
+  }
+
+  async getItemById(id) {
+    return fetch(`${API_URL}/items/${id}`).then((res) => {
+      return res.json().then((item) => {
+        return this.getItemDescription(id).then((itemDescription) => {
+          return {
+            id,
+            title: item.title,
+            price: {
+              currency: item.currency_id,
+              amount: item.price,
+            },
+            picture: item.secure_thumbnail,
+            condition: item.condition,
+            free_shipping: item.shipping.free_shipping,
+            sold_quantity: item.sold_quantity,
+            description: itemDescription,
+          };
+        });
+      });
+    });
+  }
+
+  async getItemDescription(id) {
+    return fetch(`${API_URL}/items/${id}/description`).then((res) => {
+      return res.json().then((jsonRes) => {
+        return jsonRes.plain_text;
       });
     });
   }

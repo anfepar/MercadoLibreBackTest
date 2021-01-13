@@ -17,6 +17,19 @@ function itemsApi(app) {
       next(err);
     }
   });
+
+  router.get("/:id", async function (req, res, next) {
+    const { id } = req.params;
+    try {
+      const item = await itemsService.getItemById(id);
+      res.status(200).json({
+        data: item,
+        message: "item listed",
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
 }
 
 module.exports = itemsApi;
